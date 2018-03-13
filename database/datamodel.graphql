@@ -1,0 +1,23 @@
+type Product {
+  id: ID! @unique
+  title: String!
+  url: String!
+  imageUrl: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  category: Category @relation(name: "CategoryOnProduct")
+}
+
+type Category {
+  id: ID! @unique
+  title: String!
+  url: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  products: [Product!]! @relation(name: "CategoryOnProduct")
+}
+
+type Cart {
+  id: ID! @unique
+  categoriesSelected: [Category!]! @relation(name: "CategoryOnCart") # renvoie un tableau de catégories
+}

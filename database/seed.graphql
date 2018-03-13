@@ -1,0 +1,19 @@
+mutation {
+  first: createCategory(data: {
+    title: "Boissons gazeuses"
+  }) {
+    id
+  }
+
+  second: createCategory(data: {
+    title: "Eaux"
+  }) {
+    id
+  }
+
+  third: createCategory(data: {
+    title: "Jus de fruits"
+  }) {
+    id
+  }
+}

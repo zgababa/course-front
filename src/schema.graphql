@@ -1,0 +1,11 @@
+# import "Product" from "./generated/prisma.graphql"
+
+type Query {
+  dummy: String
+}
+
+type Mutation {
+  scrapProduct(
+    categoryId: ID!
+  ): [Product] # Scrap un ensemble de produits par categorie
+}

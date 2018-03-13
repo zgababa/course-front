@@ -1,0 +1,12 @@
+# env file
+.env*
+
+# eslint
+.eslintcache
+
+# npm
+package-lock.json
+node_modules
+
+# logs
+*.log
