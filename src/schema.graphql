@@ -1,11 +1,24 @@
-# import "Product" from "./generated/prisma.graphql"
+# import ProductWhereInput, ProductOrderByInput from "./generated/prisma.graphql"
+# import Category, CategoryWhereInput, CategoryOrderByInput from "./generated/prisma.graphql"
+# import Cart, CartWhereInput, CartOrderByInput, CartCreateInput from "./generated/prisma.graphql"
+# import User, UserWhereInput, UserOrderByInput, UserCreateInput from "./generated/prisma.graphql"
 
 type Query {
-  dummy: String
+  product(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): Product!
+  products(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Product]!
+  categories(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Category]!
+  category(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): Category!
+  carts(where: CartWhereInput, orderBy: CartOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Cart]!
+  cart(where: CartWhereInput, orderBy: CartOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): Cart!
+  user(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): User!
+  users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  getProductsFromCart(cartId: ID!, first: Int, percent: Int): [Product]
 }
-
 type Mutation {
-  scrapProduct(
-    categoryId: ID!
-  ): [Product] # Scrap un ensemble de produits par categorie
+  scrapProduct(categoryId: ID!): [Product]
+  scrapProducts: [Product]
+  scrapCategories: [Category]
+  createCart(data: CartCreateInput!): Cart!
+  createUser(data: UserCreateInput!): User!
+
 }

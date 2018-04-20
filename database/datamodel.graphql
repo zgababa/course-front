@@ -3,8 +3,8 @@ type Product {
   title: String!
   url: String!
   imageUrl: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  price: Float
+  pricePerKilo: Float
   category: Category @relation(name: "CategoryOnProduct")
 }
 
@@ -12,12 +12,49 @@ type Category {
   id: ID! @unique
   title: String!
   url: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
   products: [Product!]! @relation(name: "CategoryOnProduct")
 }
 
 type Cart {
   id: ID! @unique
   categoriesSelected: [Category!]! @relation(name: "CategoryOnCart") # renvoie un tableau de catégories
+}
+
+type User {
+  id: ID! @unique
+  gender: Gender!
+  weeklyBudget: Int!
+  age: Int!
+  cooking: Boolean!
+  nutritionProfile: NutritionProfile!
+}
+
+type NutritionProfile {
+  id: ID! @unique
+  quality: NutritionProfilePrice!,
+  famous: NutritionProfileFamous!,
+  bio: NutritionProfileBio!,
+  healthy: NutritionProfileHealthy!
+}
+
+type NutritionProfilePrice {
+  id: ID! @unique
+  quantityOrQuality: Boolean!
+}
+type NutritionProfileFamous {
+  id: ID! @unique
+  quantityOrFamous: Boolean!
+}
+type NutritionProfileBio {
+  id: ID! @unique
+  quantityOrBio: Boolean!
+}
+type NutritionProfileHealthy {
+  id: ID! @unique
+  quantityOrHealthy: Boolean!
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }

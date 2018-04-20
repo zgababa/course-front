@@ -13,9 +13,36 @@ type Cart implements Node {
 type Category implements Node {
   id: ID!
   title: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  url: String!
   products(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Product!]
+}
+
+type NutritionProfile implements Node {
+  id: ID!
+  quality(where: NutritionProfilePriceWhereInput): NutritionProfilePrice!
+  famous(where: NutritionProfileFamousWhereInput): NutritionProfileFamous!
+  bio(where: NutritionProfileBioWhereInput): NutritionProfileBio!
+  healthy(where: NutritionProfileHealthyWhereInput): NutritionProfileHealthy!
+}
+
+type NutritionProfileBio implements Node {
+  id: ID!
+  quantityOrBio: Boolean!
+}
+
+type NutritionProfileFamous implements Node {
+  id: ID!
+  quantityOrFamous: Boolean!
+}
+
+type NutritionProfileHealthy implements Node {
+  id: ID!
+  quantityOrHealthy: Boolean!
+}
+
+type NutritionProfilePrice implements Node {
+  id: ID!
+  quantityOrQuality: Boolean!
 }
 
 type Product implements Node {
@@ -23,9 +50,18 @@ type Product implements Node {
   title: String!
   url: String!
   imageUrl: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  price: Float
+  pricePerKilo: Float
   category(where: CategoryWhereInput): Category
+}
+
+type User implements Node {
+  id: ID!
+  gender: Gender!
+  weeklyBudget: Int!
+  age: Int!
+  cooking: Boolean!
+  nutritionProfile(where: NutritionProfileWhereInput): NutritionProfile!
 }
 
 
@@ -41,7 +77,31 @@ type AggregateCategory {
   count: Int!
 }
 
+type AggregateNutritionProfile {
+  count: Int!
+}
+
+type AggregateNutritionProfileBio {
+  count: Int!
+}
+
+type AggregateNutritionProfileFamous {
+  count: Int!
+}
+
+type AggregateNutritionProfileHealthy {
+  count: Int!
+}
+
+type AggregateNutritionProfilePrice {
+  count: Int!
+}
+
 type AggregateProduct {
+  count: Int!
+}
+
+type AggregateUser {
   count: Int!
 }
 
@@ -225,6 +285,7 @@ type CategoryConnection {
 
 input CategoryCreateInput {
   title: String!
+  url: String!
   products: ProductCreateManyWithoutCategoryInput
 }
 
@@ -240,6 +301,7 @@ input CategoryCreateOneWithoutProductsInput {
 
 input CategoryCreateWithoutProductsInput {
   title: String!
+  url: String!
 }
 
 """
@@ -261,17 +323,18 @@ enum CategoryOrderByInput {
   id_DESC
   title_ASC
   title_DESC
-  createdAt_ASC
-  createdAt_DESC
+  url_ASC
+  url_DESC
   updatedAt_ASC
   updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
 }
 
 type CategoryPreviousValues {
   id: ID!
   title: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  url: String!
 }
 
 type CategorySubscriptionPayload {
@@ -311,11 +374,13 @@ input CategorySubscriptionWhereInput {
 
 input CategoryUpdateDataInput {
   title: String
+  url: String
   products: ProductUpdateManyWithoutCategoryInput
 }
 
 input CategoryUpdateInput {
   title: String
+  url: String
   products: ProductUpdateManyWithoutCategoryInput
 }
 
@@ -339,6 +404,7 @@ input CategoryUpdateOneWithoutProductsInput {
 
 input CategoryUpdateWithoutProductsDataInput {
   title: String
+  url: String
 }
 
 input CategoryUpdateWithWhereUniqueNestedInput {
@@ -472,64 +538,59 @@ input CategoryWhereInput {
   All values not ending with the given string.
   """
   title_not_ends_with: String
-  createdAt: DateTime
+  url: String
   """
   All values that are not equal to given value.
   """
-  createdAt_not: DateTime
+  url_not: String
   """
   All values that are contained in given list.
   """
-  createdAt_in: [DateTime!]
+  url_in: [String!]
   """
   All values that are not contained in given list.
   """
-  createdAt_not_in: [DateTime!]
+  url_not_in: [String!]
   """
   All values less than the given value.
   """
-  createdAt_lt: DateTime
+  url_lt: String
   """
   All values less than or equal the given value.
   """
-  createdAt_lte: DateTime
+  url_lte: String
   """
   All values greater than the given value.
   """
-  createdAt_gt: DateTime
+  url_gt: String
   """
   All values greater than or equal the given value.
   """
-  createdAt_gte: DateTime
-  updatedAt: DateTime
+  url_gte: String
   """
-  All values that are not equal to given value.
+  All values containing the given string.
   """
-  updatedAt_not: DateTime
+  url_contains: String
   """
-  All values that are contained in given list.
+  All values not containing the given string.
   """
-  updatedAt_in: [DateTime!]
+  url_not_contains: String
   """
-  All values that are not contained in given list.
+  All values starting with the given string.
   """
-  updatedAt_not_in: [DateTime!]
+  url_starts_with: String
   """
-  All values less than the given value.
+  All values not starting with the given string.
   """
-  updatedAt_lt: DateTime
+  url_not_starts_with: String
   """
-  All values less than or equal the given value.
+  All values ending with the given string.
   """
-  updatedAt_lte: DateTime
+  url_ends_with: String
   """
-  All values greater than the given value.
+  All values not ending with the given string.
   """
-  updatedAt_gt: DateTime
-  """
-  All values greater than or equal the given value.
-  """
-  updatedAt_gte: DateTime
+  url_not_ends_with: String
   products_every: ProductWhereInput
   products_some: ProductWhereInput
   products_none: ProductWhereInput
@@ -539,7 +600,10 @@ input CategoryWhereUniqueInput {
   id: ID
 }
 
-scalar DateTime
+enum Gender {
+  MALE
+  FEMALE
+}
 
 """
 The `Long` scalar type represents non-fractional signed whole numeric values.
@@ -551,21 +615,57 @@ type Mutation {
   createProduct(data: ProductCreateInput!): Product!
   createCategory(data: CategoryCreateInput!): Category!
   createCart(data: CartCreateInput!): Cart!
+  createUser(data: UserCreateInput!): User!
+  createNutritionProfile(data: NutritionProfileCreateInput!): NutritionProfile!
+  createNutritionProfilePrice(data: NutritionProfilePriceCreateInput!): NutritionProfilePrice!
+  createNutritionProfileFamous(data: NutritionProfileFamousCreateInput!): NutritionProfileFamous!
+  createNutritionProfileBio(data: NutritionProfileBioCreateInput!): NutritionProfileBio!
+  createNutritionProfileHealthy(data: NutritionProfileHealthyCreateInput!): NutritionProfileHealthy!
   updateProduct(data: ProductUpdateInput!, where: ProductWhereUniqueInput!): Product
   updateCategory(data: CategoryUpdateInput!, where: CategoryWhereUniqueInput!): Category
   updateCart(data: CartUpdateInput!, where: CartWhereUniqueInput!): Cart
+  updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updateNutritionProfile(data: NutritionProfileUpdateInput!, where: NutritionProfileWhereUniqueInput!): NutritionProfile
+  updateNutritionProfilePrice(data: NutritionProfilePriceUpdateInput!, where: NutritionProfilePriceWhereUniqueInput!): NutritionProfilePrice
+  updateNutritionProfileFamous(data: NutritionProfileFamousUpdateInput!, where: NutritionProfileFamousWhereUniqueInput!): NutritionProfileFamous
+  updateNutritionProfileBio(data: NutritionProfileBioUpdateInput!, where: NutritionProfileBioWhereUniqueInput!): NutritionProfileBio
+  updateNutritionProfileHealthy(data: NutritionProfileHealthyUpdateInput!, where: NutritionProfileHealthyWhereUniqueInput!): NutritionProfileHealthy
   deleteProduct(where: ProductWhereUniqueInput!): Product
   deleteCategory(where: CategoryWhereUniqueInput!): Category
   deleteCart(where: CartWhereUniqueInput!): Cart
+  deleteUser(where: UserWhereUniqueInput!): User
+  deleteNutritionProfile(where: NutritionProfileWhereUniqueInput!): NutritionProfile
+  deleteNutritionProfilePrice(where: NutritionProfilePriceWhereUniqueInput!): NutritionProfilePrice
+  deleteNutritionProfileFamous(where: NutritionProfileFamousWhereUniqueInput!): NutritionProfileFamous
+  deleteNutritionProfileBio(where: NutritionProfileBioWhereUniqueInput!): NutritionProfileBio
+  deleteNutritionProfileHealthy(where: NutritionProfileHealthyWhereUniqueInput!): NutritionProfileHealthy
   upsertProduct(where: ProductWhereUniqueInput!, create: ProductCreateInput!, update: ProductUpdateInput!): Product!
   upsertCategory(where: CategoryWhereUniqueInput!, create: CategoryCreateInput!, update: CategoryUpdateInput!): Category!
   upsertCart(where: CartWhereUniqueInput!, create: CartCreateInput!, update: CartUpdateInput!): Cart!
+  upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  upsertNutritionProfile(where: NutritionProfileWhereUniqueInput!, create: NutritionProfileCreateInput!, update: NutritionProfileUpdateInput!): NutritionProfile!
+  upsertNutritionProfilePrice(where: NutritionProfilePriceWhereUniqueInput!, create: NutritionProfilePriceCreateInput!, update: NutritionProfilePriceUpdateInput!): NutritionProfilePrice!
+  upsertNutritionProfileFamous(where: NutritionProfileFamousWhereUniqueInput!, create: NutritionProfileFamousCreateInput!, update: NutritionProfileFamousUpdateInput!): NutritionProfileFamous!
+  upsertNutritionProfileBio(where: NutritionProfileBioWhereUniqueInput!, create: NutritionProfileBioCreateInput!, update: NutritionProfileBioUpdateInput!): NutritionProfileBio!
+  upsertNutritionProfileHealthy(where: NutritionProfileHealthyWhereUniqueInput!, create: NutritionProfileHealthyCreateInput!, update: NutritionProfileHealthyUpdateInput!): NutritionProfileHealthy!
   updateManyProducts(data: ProductUpdateInput!, where: ProductWhereInput!): BatchPayload!
   updateManyCategories(data: CategoryUpdateInput!, where: CategoryWhereInput!): BatchPayload!
   updateManyCarts(data: CartUpdateInput!, where: CartWhereInput!): BatchPayload!
+  updateManyUsers(data: UserUpdateInput!, where: UserWhereInput!): BatchPayload!
+  updateManyNutritionProfiles(data: NutritionProfileUpdateInput!, where: NutritionProfileWhereInput!): BatchPayload!
+  updateManyNutritionProfilePrices(data: NutritionProfilePriceUpdateInput!, where: NutritionProfilePriceWhereInput!): BatchPayload!
+  updateManyNutritionProfileFamouses(data: NutritionProfileFamousUpdateInput!, where: NutritionProfileFamousWhereInput!): BatchPayload!
+  updateManyNutritionProfileBios(data: NutritionProfileBioUpdateInput!, where: NutritionProfileBioWhereInput!): BatchPayload!
+  updateManyNutritionProfileHealthies(data: NutritionProfileHealthyUpdateInput!, where: NutritionProfileHealthyWhereInput!): BatchPayload!
   deleteManyProducts(where: ProductWhereInput!): BatchPayload!
   deleteManyCategories(where: CategoryWhereInput!): BatchPayload!
   deleteManyCarts(where: CartWhereInput!): BatchPayload!
+  deleteManyUsers(where: UserWhereInput!): BatchPayload!
+  deleteManyNutritionProfiles(where: NutritionProfileWhereInput!): BatchPayload!
+  deleteManyNutritionProfilePrices(where: NutritionProfilePriceWhereInput!): BatchPayload!
+  deleteManyNutritionProfileFamouses(where: NutritionProfileFamousWhereInput!): BatchPayload!
+  deleteManyNutritionProfileBios(where: NutritionProfileBioWhereInput!): BatchPayload!
+  deleteManyNutritionProfileHealthies(where: NutritionProfileHealthyWhereInput!): BatchPayload!
 }
 
 enum MutationType {
@@ -582,6 +682,931 @@ interface Node {
   The id of the object.
   """
   id: ID!
+}
+
+"""
+A connection to a list of items.
+"""
+type NutritionProfileBioConnection {
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  A list of edges.
+  """
+  edges: [NutritionProfileBioEdge]!
+  aggregate: AggregateNutritionProfileBio!
+}
+
+input NutritionProfileBioCreateInput {
+  quantityOrBio: Boolean!
+}
+
+input NutritionProfileBioCreateOneInput {
+  create: NutritionProfileBioCreateInput
+  connect: NutritionProfileBioWhereUniqueInput
+}
+
+"""
+An edge in a connection.
+"""
+type NutritionProfileBioEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: NutritionProfileBio!
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+enum NutritionProfileBioOrderByInput {
+  id_ASC
+  id_DESC
+  quantityOrBio_ASC
+  quantityOrBio_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type NutritionProfileBioPreviousValues {
+  id: ID!
+  quantityOrBio: Boolean!
+}
+
+type NutritionProfileBioSubscriptionPayload {
+  mutation: MutationType!
+  node: NutritionProfileBio
+  updatedFields: [String!]
+  previousValues: NutritionProfileBioPreviousValues
+}
+
+input NutritionProfileBioSubscriptionWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [NutritionProfileBioSubscriptionWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [NutritionProfileBioSubscriptionWhereInput!]
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: NutritionProfileBioWhereInput
+}
+
+input NutritionProfileBioUpdateDataInput {
+  quantityOrBio: Boolean
+}
+
+input NutritionProfileBioUpdateInput {
+  quantityOrBio: Boolean
+}
+
+input NutritionProfileBioUpdateOneInput {
+  create: NutritionProfileBioCreateInput
+  connect: NutritionProfileBioWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
+  update: NutritionProfileBioUpdateDataInput
+  upsert: NutritionProfileBioUpsertNestedInput
+}
+
+input NutritionProfileBioUpsertNestedInput {
+  update: NutritionProfileBioUpdateDataInput!
+  create: NutritionProfileBioCreateInput!
+}
+
+input NutritionProfileBioWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [NutritionProfileBioWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [NutritionProfileBioWhereInput!]
+  id: ID
+  """
+  All values that are not equal to given value.
+  """
+  id_not: ID
+  """
+  All values that are contained in given list.
+  """
+  id_in: [ID!]
+  """
+  All values that are not contained in given list.
+  """
+  id_not_in: [ID!]
+  """
+  All values less than the given value.
+  """
+  id_lt: ID
+  """
+  All values less than or equal the given value.
+  """
+  id_lte: ID
+  """
+  All values greater than the given value.
+  """
+  id_gt: ID
+  """
+  All values greater than or equal the given value.
+  """
+  id_gte: ID
+  """
+  All values containing the given string.
+  """
+  id_contains: ID
+  """
+  All values not containing the given string.
+  """
+  id_not_contains: ID
+  """
+  All values starting with the given string.
+  """
+  id_starts_with: ID
+  """
+  All values not starting with the given string.
+  """
+  id_not_starts_with: ID
+  """
+  All values ending with the given string.
+  """
+  id_ends_with: ID
+  """
+  All values not ending with the given string.
+  """
+  id_not_ends_with: ID
+  quantityOrBio: Boolean
+  """
+  All values that are not equal to given value.
+  """
+  quantityOrBio_not: Boolean
+}
+
+input NutritionProfileBioWhereUniqueInput {
+  id: ID
+}
+
+"""
+A connection to a list of items.
+"""
+type NutritionProfileConnection {
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  A list of edges.
+  """
+  edges: [NutritionProfileEdge]!
+  aggregate: AggregateNutritionProfile!
+}
+
+input NutritionProfileCreateInput {
+  quality: NutritionProfilePriceCreateOneInput!
+  famous: NutritionProfileFamousCreateOneInput!
+  bio: NutritionProfileBioCreateOneInput!
+  healthy: NutritionProfileHealthyCreateOneInput!
+}
+
+input NutritionProfileCreateOneInput {
+  create: NutritionProfileCreateInput
+  connect: NutritionProfileWhereUniqueInput
+}
+
+"""
+An edge in a connection.
+"""
+type NutritionProfileEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: NutritionProfile!
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+"""
+A connection to a list of items.
+"""
+type NutritionProfileFamousConnection {
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  A list of edges.
+  """
+  edges: [NutritionProfileFamousEdge]!
+  aggregate: AggregateNutritionProfileFamous!
+}
+
+input NutritionProfileFamousCreateInput {
+  quantityOrFamous: Boolean!
+}
+
+input NutritionProfileFamousCreateOneInput {
+  create: NutritionProfileFamousCreateInput
+  connect: NutritionProfileFamousWhereUniqueInput
+}
+
+"""
+An edge in a connection.
+"""
+type NutritionProfileFamousEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: NutritionProfileFamous!
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+enum NutritionProfileFamousOrderByInput {
+  id_ASC
+  id_DESC
+  quantityOrFamous_ASC
+  quantityOrFamous_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type NutritionProfileFamousPreviousValues {
+  id: ID!
+  quantityOrFamous: Boolean!
+}
+
+type NutritionProfileFamousSubscriptionPayload {
+  mutation: MutationType!
+  node: NutritionProfileFamous
+  updatedFields: [String!]
+  previousValues: NutritionProfileFamousPreviousValues
+}
+
+input NutritionProfileFamousSubscriptionWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [NutritionProfileFamousSubscriptionWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [NutritionProfileFamousSubscriptionWhereInput!]
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: NutritionProfileFamousWhereInput
+}
+
+input NutritionProfileFamousUpdateDataInput {
+  quantityOrFamous: Boolean
+}
+
+input NutritionProfileFamousUpdateInput {
+  quantityOrFamous: Boolean
+}
+
+input NutritionProfileFamousUpdateOneInput {
+  create: NutritionProfileFamousCreateInput
+  connect: NutritionProfileFamousWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
+  update: NutritionProfileFamousUpdateDataInput
+  upsert: NutritionProfileFamousUpsertNestedInput
+}
+
+input NutritionProfileFamousUpsertNestedInput {
+  update: NutritionProfileFamousUpdateDataInput!
+  create: NutritionProfileFamousCreateInput!
+}
+
+input NutritionProfileFamousWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [NutritionProfileFamousWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [NutritionProfileFamousWhereInput!]
+  id: ID
+  """
+  All values that are not equal to given value.
+  """
+  id_not: ID
+  """
+  All values that are contained in given list.
+  """
+  id_in: [ID!]
+  """
+  All values that are not contained in given list.
+  """
+  id_not_in: [ID!]
+  """
+  All values less than the given value.
+  """
+  id_lt: ID
+  """
+  All values less than or equal the given value.
+  """
+  id_lte: ID
+  """
+  All values greater than the given value.
+  """
+  id_gt: ID
+  """
+  All values greater than or equal the given value.
+  """
+  id_gte: ID
+  """
+  All values containing the given string.
+  """
+  id_contains: ID
+  """
+  All values not containing the given string.
+  """
+  id_not_contains: ID
+  """
+  All values starting with the given string.
+  """
+  id_starts_with: ID
+  """
+  All values not starting with the given string.
+  """
+  id_not_starts_with: ID
+  """
+  All values ending with the given string.
+  """
+  id_ends_with: ID
+  """
+  All values not ending with the given string.
+  """
+  id_not_ends_with: ID
+  quantityOrFamous: Boolean
+  """
+  All values that are not equal to given value.
+  """
+  quantityOrFamous_not: Boolean
+}
+
+input NutritionProfileFamousWhereUniqueInput {
+  id: ID
+}
+
+"""
+A connection to a list of items.
+"""
+type NutritionProfileHealthyConnection {
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  A list of edges.
+  """
+  edges: [NutritionProfileHealthyEdge]!
+  aggregate: AggregateNutritionProfileHealthy!
+}
+
+input NutritionProfileHealthyCreateInput {
+  quantityOrHealthy: Boolean!
+}
+
+input NutritionProfileHealthyCreateOneInput {
+  create: NutritionProfileHealthyCreateInput
+  connect: NutritionProfileHealthyWhereUniqueInput
+}
+
+"""
+An edge in a connection.
+"""
+type NutritionProfileHealthyEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: NutritionProfileHealthy!
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+enum NutritionProfileHealthyOrderByInput {
+  id_ASC
+  id_DESC
+  quantityOrHealthy_ASC
+  quantityOrHealthy_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type NutritionProfileHealthyPreviousValues {
+  id: ID!
+  quantityOrHealthy: Boolean!
+}
+
+type NutritionProfileHealthySubscriptionPayload {
+  mutation: MutationType!
+  node: NutritionProfileHealthy
+  updatedFields: [String!]
+  previousValues: NutritionProfileHealthyPreviousValues
+}
+
+input NutritionProfileHealthySubscriptionWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [NutritionProfileHealthySubscriptionWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [NutritionProfileHealthySubscriptionWhereInput!]
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: NutritionProfileHealthyWhereInput
+}
+
+input NutritionProfileHealthyUpdateDataInput {
+  quantityOrHealthy: Boolean
+}
+
+input NutritionProfileHealthyUpdateInput {
+  quantityOrHealthy: Boolean
+}
+
+input NutritionProfileHealthyUpdateOneInput {
+  create: NutritionProfileHealthyCreateInput
+  connect: NutritionProfileHealthyWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
+  update: NutritionProfileHealthyUpdateDataInput
+  upsert: NutritionProfileHealthyUpsertNestedInput
+}
+
+input NutritionProfileHealthyUpsertNestedInput {
+  update: NutritionProfileHealthyUpdateDataInput!
+  create: NutritionProfileHealthyCreateInput!
+}
+
+input NutritionProfileHealthyWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [NutritionProfileHealthyWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [NutritionProfileHealthyWhereInput!]
+  id: ID
+  """
+  All values that are not equal to given value.
+  """
+  id_not: ID
+  """
+  All values that are contained in given list.
+  """
+  id_in: [ID!]
+  """
+  All values that are not contained in given list.
+  """
+  id_not_in: [ID!]
+  """
+  All values less than the given value.
+  """
+  id_lt: ID
+  """
+  All values less than or equal the given value.
+  """
+  id_lte: ID
+  """
+  All values greater than the given value.
+  """
+  id_gt: ID
+  """
+  All values greater than or equal the given value.
+  """
+  id_gte: ID
+  """
+  All values containing the given string.
+  """
+  id_contains: ID
+  """
+  All values not containing the given string.
+  """
+  id_not_contains: ID
+  """
+  All values starting with the given string.
+  """
+  id_starts_with: ID
+  """
+  All values not starting with the given string.
+  """
+  id_not_starts_with: ID
+  """
+  All values ending with the given string.
+  """
+  id_ends_with: ID
+  """
+  All values not ending with the given string.
+  """
+  id_not_ends_with: ID
+  quantityOrHealthy: Boolean
+  """
+  All values that are not equal to given value.
+  """
+  quantityOrHealthy_not: Boolean
+}
+
+input NutritionProfileHealthyWhereUniqueInput {
+  id: ID
+}
+
+enum NutritionProfileOrderByInput {
+  id_ASC
+  id_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type NutritionProfilePreviousValues {
+  id: ID!
+}
+
+"""
+A connection to a list of items.
+"""
+type NutritionProfilePriceConnection {
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  A list of edges.
+  """
+  edges: [NutritionProfilePriceEdge]!
+  aggregate: AggregateNutritionProfilePrice!
+}
+
+input NutritionProfilePriceCreateInput {
+  quantityOrQuality: Boolean!
+}
+
+input NutritionProfilePriceCreateOneInput {
+  create: NutritionProfilePriceCreateInput
+  connect: NutritionProfilePriceWhereUniqueInput
+}
+
+"""
+An edge in a connection.
+"""
+type NutritionProfilePriceEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: NutritionProfilePrice!
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+enum NutritionProfilePriceOrderByInput {
+  id_ASC
+  id_DESC
+  quantityOrQuality_ASC
+  quantityOrQuality_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type NutritionProfilePricePreviousValues {
+  id: ID!
+  quantityOrQuality: Boolean!
+}
+
+type NutritionProfilePriceSubscriptionPayload {
+  mutation: MutationType!
+  node: NutritionProfilePrice
+  updatedFields: [String!]
+  previousValues: NutritionProfilePricePreviousValues
+}
+
+input NutritionProfilePriceSubscriptionWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [NutritionProfilePriceSubscriptionWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [NutritionProfilePriceSubscriptionWhereInput!]
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: NutritionProfilePriceWhereInput
+}
+
+input NutritionProfilePriceUpdateDataInput {
+  quantityOrQuality: Boolean
+}
+
+input NutritionProfilePriceUpdateInput {
+  quantityOrQuality: Boolean
+}
+
+input NutritionProfilePriceUpdateOneInput {
+  create: NutritionProfilePriceCreateInput
+  connect: NutritionProfilePriceWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
+  update: NutritionProfilePriceUpdateDataInput
+  upsert: NutritionProfilePriceUpsertNestedInput
+}
+
+input NutritionProfilePriceUpsertNestedInput {
+  update: NutritionProfilePriceUpdateDataInput!
+  create: NutritionProfilePriceCreateInput!
+}
+
+input NutritionProfilePriceWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [NutritionProfilePriceWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [NutritionProfilePriceWhereInput!]
+  id: ID
+  """
+  All values that are not equal to given value.
+  """
+  id_not: ID
+  """
+  All values that are contained in given list.
+  """
+  id_in: [ID!]
+  """
+  All values that are not contained in given list.
+  """
+  id_not_in: [ID!]
+  """
+  All values less than the given value.
+  """
+  id_lt: ID
+  """
+  All values less than or equal the given value.
+  """
+  id_lte: ID
+  """
+  All values greater than the given value.
+  """
+  id_gt: ID
+  """
+  All values greater than or equal the given value.
+  """
+  id_gte: ID
+  """
+  All values containing the given string.
+  """
+  id_contains: ID
+  """
+  All values not containing the given string.
+  """
+  id_not_contains: ID
+  """
+  All values starting with the given string.
+  """
+  id_starts_with: ID
+  """
+  All values not starting with the given string.
+  """
+  id_not_starts_with: ID
+  """
+  All values ending with the given string.
+  """
+  id_ends_with: ID
+  """
+  All values not ending with the given string.
+  """
+  id_not_ends_with: ID
+  quantityOrQuality: Boolean
+  """
+  All values that are not equal to given value.
+  """
+  quantityOrQuality_not: Boolean
+}
+
+input NutritionProfilePriceWhereUniqueInput {
+  id: ID
+}
+
+type NutritionProfileSubscriptionPayload {
+  mutation: MutationType!
+  node: NutritionProfile
+  updatedFields: [String!]
+  previousValues: NutritionProfilePreviousValues
+}
+
+input NutritionProfileSubscriptionWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [NutritionProfileSubscriptionWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [NutritionProfileSubscriptionWhereInput!]
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: NutritionProfileWhereInput
+}
+
+input NutritionProfileUpdateDataInput {
+  quality: NutritionProfilePriceUpdateOneInput
+  famous: NutritionProfileFamousUpdateOneInput
+  bio: NutritionProfileBioUpdateOneInput
+  healthy: NutritionProfileHealthyUpdateOneInput
+}
+
+input NutritionProfileUpdateInput {
+  quality: NutritionProfilePriceUpdateOneInput
+  famous: NutritionProfileFamousUpdateOneInput
+  bio: NutritionProfileBioUpdateOneInput
+  healthy: NutritionProfileHealthyUpdateOneInput
+}
+
+input NutritionProfileUpdateOneInput {
+  create: NutritionProfileCreateInput
+  connect: NutritionProfileWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
+  update: NutritionProfileUpdateDataInput
+  upsert: NutritionProfileUpsertNestedInput
+}
+
+input NutritionProfileUpsertNestedInput {
+  update: NutritionProfileUpdateDataInput!
+  create: NutritionProfileCreateInput!
+}
+
+input NutritionProfileWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [NutritionProfileWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [NutritionProfileWhereInput!]
+  id: ID
+  """
+  All values that are not equal to given value.
+  """
+  id_not: ID
+  """
+  All values that are contained in given list.
+  """
+  id_in: [ID!]
+  """
+  All values that are not contained in given list.
+  """
+  id_not_in: [ID!]
+  """
+  All values less than the given value.
+  """
+  id_lt: ID
+  """
+  All values less than or equal the given value.
+  """
+  id_lte: ID
+  """
+  All values greater than the given value.
+  """
+  id_gt: ID
+  """
+  All values greater than or equal the given value.
+  """
+  id_gte: ID
+  """
+  All values containing the given string.
+  """
+  id_contains: ID
+  """
+  All values not containing the given string.
+  """
+  id_not_contains: ID
+  """
+  All values starting with the given string.
+  """
+  id_starts_with: ID
+  """
+  All values not starting with the given string.
+  """
+  id_not_starts_with: ID
+  """
+  All values ending with the given string.
+  """
+  id_ends_with: ID
+  """
+  All values not ending with the given string.
+  """
+  id_not_ends_with: ID
+  quality: NutritionProfilePriceWhereInput
+  famous: NutritionProfileFamousWhereInput
+  bio: NutritionProfileBioWhereInput
+  healthy: NutritionProfileHealthyWhereInput
+}
+
+input NutritionProfileWhereUniqueInput {
+  id: ID
 }
 
 """
@@ -625,6 +1650,8 @@ input ProductCreateInput {
   title: String!
   url: String!
   imageUrl: String!
+  price: Float
+  pricePerKilo: Float
   category: CategoryCreateOneWithoutProductsInput
 }
 
@@ -637,6 +1664,8 @@ input ProductCreateWithoutCategoryInput {
   title: String!
   url: String!
   imageUrl: String!
+  price: Float
+  pricePerKilo: Float
 }
 
 """
@@ -662,10 +1691,14 @@ enum ProductOrderByInput {
   url_DESC
   imageUrl_ASC
   imageUrl_DESC
-  createdAt_ASC
-  createdAt_DESC
+  price_ASC
+  price_DESC
+  pricePerKilo_ASC
+  pricePerKilo_DESC
   updatedAt_ASC
   updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
 }
 
 type ProductPreviousValues {
@@ -673,8 +1706,8 @@ type ProductPreviousValues {
   title: String!
   url: String!
   imageUrl: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+  price: Float
+  pricePerKilo: Float
 }
 
 type ProductSubscriptionPayload {
@@ -716,6 +1749,8 @@ input ProductUpdateInput {
   title: String
   url: String
   imageUrl: String
+  price: Float
+  pricePerKilo: Float
   category: CategoryUpdateOneWithoutProductsInput
 }
 
@@ -732,6 +1767,8 @@ input ProductUpdateWithoutCategoryDataInput {
   title: String
   url: String
   imageUrl: String
+  price: Float
+  pricePerKilo: Float
 }
 
 input ProductUpdateWithWhereUniqueWithoutCategoryInput {
@@ -966,64 +2003,64 @@ input ProductWhereInput {
   All values not ending with the given string.
   """
   imageUrl_not_ends_with: String
-  createdAt: DateTime
+  price: Float
   """
   All values that are not equal to given value.
   """
-  createdAt_not: DateTime
+  price_not: Float
   """
   All values that are contained in given list.
   """
-  createdAt_in: [DateTime!]
+  price_in: [Float!]
   """
   All values that are not contained in given list.
   """
-  createdAt_not_in: [DateTime!]
+  price_not_in: [Float!]
   """
   All values less than the given value.
   """
-  createdAt_lt: DateTime
+  price_lt: Float
   """
   All values less than or equal the given value.
   """
-  createdAt_lte: DateTime
+  price_lte: Float
   """
   All values greater than the given value.
   """
-  createdAt_gt: DateTime
+  price_gt: Float
   """
   All values greater than or equal the given value.
   """
-  createdAt_gte: DateTime
-  updatedAt: DateTime
+  price_gte: Float
+  pricePerKilo: Float
   """
   All values that are not equal to given value.
   """
-  updatedAt_not: DateTime
+  pricePerKilo_not: Float
   """
   All values that are contained in given list.
   """
-  updatedAt_in: [DateTime!]
+  pricePerKilo_in: [Float!]
   """
   All values that are not contained in given list.
   """
-  updatedAt_not_in: [DateTime!]
+  pricePerKilo_not_in: [Float!]
   """
   All values less than the given value.
   """
-  updatedAt_lt: DateTime
+  pricePerKilo_lt: Float
   """
   All values less than or equal the given value.
   """
-  updatedAt_lte: DateTime
+  pricePerKilo_lte: Float
   """
   All values greater than the given value.
   """
-  updatedAt_gt: DateTime
+  pricePerKilo_gt: Float
   """
   All values greater than or equal the given value.
   """
-  updatedAt_gte: DateTime
+  pricePerKilo_gte: Float
   category: CategoryWhereInput
 }
 
@@ -1035,12 +2072,30 @@ type Query {
   products(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Product]!
   categories(where: CategoryWhereInput, orderBy: CategoryOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Category]!
   carts(where: CartWhereInput, orderBy: CartOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Cart]!
+  users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  nutritionProfiles(where: NutritionProfileWhereInput, orderBy: NutritionProfileOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [NutritionProfile]!
+  nutritionProfilePrices(where: NutritionProfilePriceWhereInput, orderBy: NutritionProfilePriceOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [NutritionProfilePrice]!
+  nutritionProfileFamouses(where: NutritionProfileFamousWhereInput, orderBy: NutritionProfileFamousOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [NutritionProfileFamous]!
+  nutritionProfileBios(where: NutritionProfileBioWhereInput, orderBy: NutritionProfileBioOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [NutritionProfileBio]!
+  nutritionProfileHealthies(where: NutritionProfileHealthyWhereInput, orderBy: NutritionProfileHealthyOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [NutritionProfileHealthy]!
   product(where: ProductWhereUniqueInput!): Product
   category(where: CategoryWhereUniqueInput!): Category
   cart(where: CartWhereUniqueInput!): Cart
+  user(where: UserWhereUniqueInput!): User
+  nutritionProfile(where: NutritionProfileWhereUniqueInput!): NutritionProfile
+  nutritionProfilePrice(where: NutritionProfilePriceWhereUniqueInput!): NutritionProfilePrice
+  nutritionProfileFamous(where: NutritionProfileFamousWhereUniqueInput!): NutritionProfileFamous
+  nutritionProfileBio(where: NutritionProfileBioWhereUniqueInput!): NutritionProfileBio
+  nutritionProfileHealthy(where: NutritionProfileHealthyWhereUniqueInput!): NutritionProfileHealthy
   productsConnection(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ProductConnection!
   categoriesConnection(where: CategoryWhereInput, orderBy: CategoryOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): CategoryConnection!
   cartsConnection(where: CartWhereInput, orderBy: CartOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): CartConnection!
+  usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  nutritionProfilesConnection(where: NutritionProfileWhereInput, orderBy: NutritionProfileOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NutritionProfileConnection!
+  nutritionProfilePricesConnection(where: NutritionProfilePriceWhereInput, orderBy: NutritionProfilePriceOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NutritionProfilePriceConnection!
+  nutritionProfileFamousesConnection(where: NutritionProfileFamousWhereInput, orderBy: NutritionProfileFamousOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NutritionProfileFamousConnection!
+  nutritionProfileBiosConnection(where: NutritionProfileBioWhereInput, orderBy: NutritionProfileBioOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NutritionProfileBioConnection!
+  nutritionProfileHealthiesConnection(where: NutritionProfileHealthyWhereInput, orderBy: NutritionProfileHealthyOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NutritionProfileHealthyConnection!
   """
   Fetches an object given its ID
   """
@@ -1054,4 +2109,260 @@ type Subscription {
   product(where: ProductSubscriptionWhereInput): ProductSubscriptionPayload
   category(where: CategorySubscriptionWhereInput): CategorySubscriptionPayload
   cart(where: CartSubscriptionWhereInput): CartSubscriptionPayload
+  user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  nutritionProfile(where: NutritionProfileSubscriptionWhereInput): NutritionProfileSubscriptionPayload
+  nutritionProfilePrice(where: NutritionProfilePriceSubscriptionWhereInput): NutritionProfilePriceSubscriptionPayload
+  nutritionProfileFamous(where: NutritionProfileFamousSubscriptionWhereInput): NutritionProfileFamousSubscriptionPayload
+  nutritionProfileBio(where: NutritionProfileBioSubscriptionWhereInput): NutritionProfileBioSubscriptionPayload
+  nutritionProfileHealthy(where: NutritionProfileHealthySubscriptionWhereInput): NutritionProfileHealthySubscriptionPayload
+}
+
+"""
+A connection to a list of items.
+"""
+type UserConnection {
+  """
+  Information to aid in pagination.
+  """
+  pageInfo: PageInfo!
+  """
+  A list of edges.
+  """
+  edges: [UserEdge]!
+  aggregate: AggregateUser!
+}
+
+input UserCreateInput {
+  gender: Gender!
+  weeklyBudget: Int!
+  age: Int!
+  cooking: Boolean!
+  nutritionProfile: NutritionProfileCreateOneInput!
+}
+
+"""
+An edge in a connection.
+"""
+type UserEdge {
+  """
+  The item at the end of the edge.
+  """
+  node: User!
+  """
+  A cursor for use in pagination.
+  """
+  cursor: String!
+}
+
+enum UserOrderByInput {
+  id_ASC
+  id_DESC
+  gender_ASC
+  gender_DESC
+  weeklyBudget_ASC
+  weeklyBudget_DESC
+  age_ASC
+  age_DESC
+  cooking_ASC
+  cooking_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type UserPreviousValues {
+  id: ID!
+  gender: Gender!
+  weeklyBudget: Int!
+  age: Int!
+  cooking: Boolean!
+}
+
+type UserSubscriptionPayload {
+  mutation: MutationType!
+  node: User
+  updatedFields: [String!]
+  previousValues: UserPreviousValues
+}
+
+input UserSubscriptionWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [UserSubscriptionWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [UserSubscriptionWhereInput!]
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: UserWhereInput
+}
+
+input UserUpdateInput {
+  gender: Gender
+  weeklyBudget: Int
+  age: Int
+  cooking: Boolean
+  nutritionProfile: NutritionProfileUpdateOneInput
+}
+
+input UserWhereInput {
+  """
+  Logical AND on all given filters.
+  """
+  AND: [UserWhereInput!]
+  """
+  Logical OR on all given filters.
+  """
+  OR: [UserWhereInput!]
+  id: ID
+  """
+  All values that are not equal to given value.
+  """
+  id_not: ID
+  """
+  All values that are contained in given list.
+  """
+  id_in: [ID!]
+  """
+  All values that are not contained in given list.
+  """
+  id_not_in: [ID!]
+  """
+  All values less than the given value.
+  """
+  id_lt: ID
+  """
+  All values less than or equal the given value.
+  """
+  id_lte: ID
+  """
+  All values greater than the given value.
+  """
+  id_gt: ID
+  """
+  All values greater than or equal the given value.
+  """
+  id_gte: ID
+  """
+  All values containing the given string.
+  """
+  id_contains: ID
+  """
+  All values not containing the given string.
+  """
+  id_not_contains: ID
+  """
+  All values starting with the given string.
+  """
+  id_starts_with: ID
+  """
+  All values not starting with the given string.
+  """
+  id_not_starts_with: ID
+  """
+  All values ending with the given string.
+  """
+  id_ends_with: ID
+  """
+  All values not ending with the given string.
+  """
+  id_not_ends_with: ID
+  gender: Gender
+  """
+  All values that are not equal to given value.
+  """
+  gender_not: Gender
+  """
+  All values that are contained in given list.
+  """
+  gender_in: [Gender!]
+  """
+  All values that are not contained in given list.
+  """
+  gender_not_in: [Gender!]
+  weeklyBudget: Int
+  """
+  All values that are not equal to given value.
+  """
+  weeklyBudget_not: Int
+  """
+  All values that are contained in given list.
+  """
+  weeklyBudget_in: [Int!]
+  """
+  All values that are not contained in given list.
+  """
+  weeklyBudget_not_in: [Int!]
+  """
+  All values less than the given value.
+  """
+  weeklyBudget_lt: Int
+  """
+  All values less than or equal the given value.
+  """
+  weeklyBudget_lte: Int
+  """
+  All values greater than the given value.
+  """
+  weeklyBudget_gt: Int
+  """
+  All values greater than or equal the given value.
+  """
+  weeklyBudget_gte: Int
+  age: Int
+  """
+  All values that are not equal to given value.
+  """
+  age_not: Int
+  """
+  All values that are contained in given list.
+  """
+  age_in: [Int!]
+  """
+  All values that are not contained in given list.
+  """
+  age_not_in: [Int!]
+  """
+  All values less than the given value.
+  """
+  age_lt: Int
+  """
+  All values less than or equal the given value.
+  """
+  age_lte: Int
+  """
+  All values greater than the given value.
+  """
+  age_gt: Int
+  """
+  All values greater than or equal the given value.
+  """
+  age_gte: Int
+  cooking: Boolean
+  """
+  All values that are not equal to given value.
+  """
+  cooking_not: Boolean
+  nutritionProfile: NutritionProfileWhereInput
+}
+
+input UserWhereUniqueInput {
+  id: ID
 }
