@@ -1,15 +1,30 @@
 type Product {
   id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
   title: String!
   url: String!
   imageUrl: String!
   price: Float
   pricePerKilo: Float
+  isCookedMeal: Boolean @default(value: "false")
+  isMilkInside: Boolean @default(value: "false")
+  isMeatInside: Boolean @default(value: "false")
+  isEggInside: Boolean @default(value: "false")
   category: Category @relation(name: "CategoryOnProduct")
+  qualityRate: Int # UPDATE Product SET qualityRate = FLOOR( 1 + RAND( ) *5 );
+  priceQualityRatio: Float #UPDATE Product SET priceQualityRatio = (qualityRate / price )
+
+  _uselessAllowedProducts: UserProduct @relation(name: "UserProductAllowed")
+  _uselessForbiddenProducts: UserProduct @relation(name: "UserProductForbidden")
+  _uselessIncludedProducts: CartProduct @relation(name: "CartProductIncluded")
+  _uselessExcludedProducts: CartProduct @relation(name: "CartProductExcluded")
 }
 
 type Category {
   id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
   title: String!
   url: String!
   products: [Product!]! @relation(name: "CategoryOnProduct")
@@ -17,16 +32,44 @@ type Category {
 
 type Cart {
   id: ID! @unique
-  categoriesSelected: [Category!]! @relation(name: "CategoryOnCart") # renvoie un tableau de catégories
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  selectedCategories: [Category!]! @relation(name: "CategoryOnCart") # renvoie un tableau de catégories
+  user: User! @relation(name: "UserOnCart")
+  products: CartProduct
 }
 
 type User {
   id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  email: String! @unique
+  password: String!
   gender: Gender!
   weeklyBudget: Int!
-  age: Int!
-  cooking: Boolean!
-  nutritionProfile: NutritionProfile!
+  age: Int
+  isCooking: Boolean
+  isLactoseIntolerant: Boolean
+  isVegetarien: Boolean
+  isVegetalien: Boolean
+  falseAllowedProductIds: [ID!]!
+  falseForbiddenProductIds: [ID!]!
+  products: UserProduct
+  priceQualityProfile: PriceQualityProfile
+  nutritionProfile: NutritionProfile
+}
+
+type UserProduct {
+  id: ID! @unique
+  allowed: [Product!]! @relation(name: "UserProductAllowed")
+  forbidden: [Product!]! @relation(name: "UserProductForbidden")
+}
+
+type CartProduct {
+  id: ID! @unique
+  total: Float!
+  included: [Product!]! @relation(name: "CartProductIncluded")
+  excluded: [Product!]! @relation(name: "CartProductExcluded")
 }
 
 type NutritionProfile {
@@ -57,4 +100,10 @@ type NutritionProfileHealthy {
 enum Gender {
   MALE
   FEMALE
+}
+
+enum PriceQualityProfile {
+  BEST_PRICE
+  BEST_PRICE_QUALITY_RATIO
+  BEST_QUALITY
 }

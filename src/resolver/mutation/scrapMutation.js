@@ -1,38 +1,40 @@
 
 const scrapProductsByCategory = require('../../../../scrapping/product/productByCategory.js');
 const scrapCategories = require('../../../../scrapping/category/scrapCategories.js');
-const categories = require('../../../../scrapping/category/category.json');
+const categoriesJSON = require('../../../../scrapping/category/category.json');
 
 const Promise = require('bluebird');
 
-async function createProduct(ctx, categoryId, product) {
-  return ctx.db.mutation.createProduct({
-    data: {
-      title: product.title,
-      imageUrl: product.imageUrl,
-      url: product.url,
-      price: product.price && product.price.replace(',', '.'),
-      pricePerKilo: product.pricePerKilo && product.pricePerKilo.replace(',', '.'),
-      category: {
-        connect: {
-          id: categoryId
-        }
-      }
-    }
-  });
+async function createProduct(ctx, category, product) {
+ return ctx.db.mutation.createProduct({
+   data: {
+     title: product.title,
+     imageUrl: product.imageUrl,
+     url: product.url,
+     price: product.price && product.price.replace(',', '.').replace(/\s/g, ''),
+     pricePerKilo: product.pricePerKilo && product.pricePerKilo.replace(',', '.').replace(/\s/g, ''),
+     isCookedMeal: category.title === 'Légumes surgelé',
+     isMeatInside: category.title === 'Viande',
+     isMilkInside: category.title === 'Lait',
+     isEggInside: category.title === 'Oeufs',
+     category: {
+       connect: {
+         id: category.id
+       }
+     }
+   }
+ });
 }
 
 async function scrapProduct(root, { categoryId }, ctx, info) {
   const category = await ctx.db.query.category({ where: { id: categoryId } });
   if(!category.url) throw new Error("No category found !");
 
-  await ctx.db.mutation.deleteManyProducts({where: {category: {id: categoryId}}});
-
   const products = await scrapProductsByCategory(category.title);
   await Promise
     .map(products, (product) => {
-      return createProduct(ctx, categoryId, product)
-    }, {concurrency: 1})
+      return createProduct(ctx, category, product)
+    }, {concurrency: 10})
     .catch((e) => console.log('<<<<<<<<<<< FAIL', e));
 
   return ctx.db.query.products(null, info);
@@ -42,7 +44,7 @@ module.exports = {
   scrapProduct,
   async scrapProducts(root, { categoryId }, ctx, info) {
     const date = new Date();
-
+    await ctx.db.mutation.deleteManyProducts({where: {createdAt_lt: date.toISOString()}});
     const categories = await ctx.db.query.categories(null, '{ id }');
     const categoryIds = categories.map((category) => category.id);
 
@@ -64,7 +66,7 @@ module.exports = {
       .reduce((a, b) => a.concat(b), [])
     }
 
-    const subCategories = getSubCategories(categories)
+    const subCategories = getSubCategories(categoriesJSON)
     await Promise.all(subCategories.map(async (category) => {
       return ctx.db.mutation.createCategory({
         data: {

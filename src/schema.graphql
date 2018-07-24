@@ -4,15 +4,15 @@
 # import User, UserWhereInput, UserOrderByInput, UserCreateInput from "./generated/prisma.graphql"
 
 type Query {
-  product(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): Product!
+  product(where: ProductWhereInput): Product!
   products(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Product]!
+  category(where: ProductWhereInput): Category!
   categories(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Category]!
-  category(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): Category!
+  cart(where: CartWhereInput): Cart!
   carts(where: CartWhereInput, orderBy: CartOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Cart]!
-  cart(where: CartWhereInput, orderBy: CartOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): Cart!
-  user(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): User!
+  user(where: UserWhereUniqueInput): User!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
-  getProductsFromCart(cartId: ID!, first: Int, percent: Int): [Product]
+  me: User
 }
 type Mutation {
   scrapProduct(categoryId: ID!): [Product]
@@ -20,5 +20,13 @@ type Mutation {
   scrapCategories: [Category]
   createCart(data: CartCreateInput!): Cart!
   createUser(data: UserCreateInput!): User!
+  updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updateProduct(data: ProductUpdateInput!, where: ProductWhereUniqueInput!): Product!
+  signup(data: UserCreateInput!): AuthPayload!
+  login(email: String!, password: String!): AuthPayload!
+}
 
+type AuthPayload {
+  token: String!
+  user: User!
 }
