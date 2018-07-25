@@ -38,4 +38,4 @@ const server = new GraphQLServer({
   }),
 });
 
-server.start(() => winston.info('Server is running on http://localhost:4000'));
+server.start(() => winston.info('Server is running on http://localhost:4466/api/dev'));
