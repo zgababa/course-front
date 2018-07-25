@@ -1,9 +1,8 @@
 
-const { forwardTo } = require('prisma-binding')
+const { forwardTo } = require('prisma-binding');
 const { scrapProduct, scrapProducts, scrapCategories } = require('./mutation/scrapMutation');
 const { getProductsFromCart, getProductsFromUser } = require('./query/productQuery');
-const { me, signup, login } = require('./auth')
-const { getUserId } = require('./utils');
+const { me, signup, login } = require('./auth');
 
 
 module.exports = {
@@ -17,7 +16,7 @@ module.exports = {
       carts: forwardTo('db'),
       user: forwardTo('db'),
       users: forwardTo('db'),
-      me
+      me,
     },
     Mutation: {
       scrapProduct,
@@ -31,17 +30,13 @@ module.exports = {
       login,
     },
     AuthPayload: {
-      user: async ({ user: { id } }, args, ctx, info) => {
-        return ctx.db.query.user({ where: { id } }, info)
-      }
+      user: async ({ user: { id } }, args, ctx, info) => ctx.db.query.user({ where: { id } }, info),
     },
     User: {
-      products:  async (root, args, ctx, info) => {
-        return getProductsFromUser(ctx);
-      }
+      products: async (root, args, ctx) => getProductsFromUser(ctx),
     },
     Cart: {
-      products: getProductsFromCart
-    }
-  }
+      products: getProductsFromCart,
+    },
+  },
 };

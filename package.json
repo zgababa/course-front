@@ -1,23 +1,29 @@
 {
   "name": "api",
   "scripts": {
-    "dev": "nodemon src/index.js",
+    "watch": "nodemon src/index.js",
     "playground": "graphql playground --port 5000",
     "prisma": "prisma",
     "deploy": "prisma deploy",
-    "log": "prisma cluster logs"
+    "log": "prisma cluster logs",
+    "lint": "eslint src/*"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.1",
-    "eslint-config-airbnb": "^17.0.0",
+    "chalk": "^2.4.1",
     "graphql-yoga": "^1.14.12",
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.10",
     "prisma": "^1.12.0",
-    "prisma-binding": "2.1.1"
+    "prisma-binding": "2.1.1",
+    "winston": "^3.0.0"
   },
   "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-graphql": "^2.1.1",
+    "eslint-plugin-import": "^2.13.0",
     "graphql-cli": "^2.16.5",
     "npm-run-all": "^4.1.3"
   }

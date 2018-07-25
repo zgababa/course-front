@@ -7,7 +7,7 @@ function isShowMilkInsideProducts(isLactoseIntolerant) {
 }
 
 function isShowVegetarienProducts(isVegetarien) {
-  const obj = {}
+  const obj = {};
   if (isVegetarien) {
     obj.isMeatInside = false;
   }
@@ -36,5 +36,5 @@ module.exports = {
   isShowMilkInsideProducts,
   isShowVegetarienProducts,
   isShowVegetalienProducts,
-  isShowCookedMealProducts
+  isShowCookedMealProducts,
 };
