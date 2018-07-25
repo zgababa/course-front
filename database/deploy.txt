@@ -1,0 +1,24 @@
+Liste des étape pour mettre à jour proprement le server prisma
+  Création d'une BDD avec migration
+  Mis à jour du container prisma
+
+
+1) npm run prisma init
+  - Crée une nouvelle BDD, ou utilise une nouvelle (non comptable avec mysql)
+
+2) docker-compose up -d
+  - Met à jour l'image spécifié dans le docker-compose.yml
+  - Lance l'image mysql
+  - Lance l'image prismagraphql/prisma
+
+3) npm run prisma deploy
+  - Déploy le datamodel.graphql sur la BDD
+
+4) npm run dev
+  - Lance le server, avec l'image mis à jour
+
+5) Optionnel : Accès à la BDD
+  Ajoutez dans le docker-compose.yml à la section mysql:
+    ports:
+      - "3306:3306"
+  Ceci expose le port 3306 au public et devient accessible à un client mysql par exemple

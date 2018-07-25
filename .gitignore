@@ -11,5 +11,6 @@ node_modules
 # logs
 *.log
 
+!src/generated/
 
-src/generated/prisma.graphql
+*.Rhistory

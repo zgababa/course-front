@@ -6,7 +6,7 @@ const {isShowMilkInsideProducts, isShowVegetarienProducts, isShowVegetalienProdu
 
 function pickOneProductPerCategory(products, priceQualityProfile) {
   const productsByCategory = _.groupBy(products, 'category.title');
-  
+
   return Object.keys(productsByCategory).map(key => {
     switch(priceQualityProfile) {
       case 'BEST_PRICE' :

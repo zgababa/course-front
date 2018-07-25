@@ -19,6 +19,7 @@ function isShowVegetalienProducts(isVegetalien) {
   if (isVegetalien) {
     obj.isEggInside = false;
     obj.isMeatInside = false;
+    obj.isMilkInside = false;
   }
   return obj;
 }
@@ -27,8 +28,6 @@ function isShowCookedMealProducts(isCooking) {
   const obj = {};
   if (isCooking) {
     obj.isCookedMeal = false;
-  } else {
-    obj.isCookedMeal = true;
   }
   return obj;
 }
