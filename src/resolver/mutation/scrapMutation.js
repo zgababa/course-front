@@ -27,7 +27,6 @@ async function createProduct(ctx, category, product) {
 async function scrapProduct(root, { categoryId }, ctx, info) {
   const category = await ctx.db.query.category({ where: { id: categoryId } });
   if (!category.url) throw new Error('No category found !');
-
   const products = await scrapProductsByCategory(category.title);
   await Promise
     .map(products, product => createProduct(ctx, category, product), { concurrency: 10 })

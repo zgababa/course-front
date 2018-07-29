@@ -35,6 +35,7 @@ type Cart {
   createdAt: DateTime!
   updatedAt: DateTime!
   selectedCategories: [Category!]! @relation(name: "CategoryOnCart") # renvoie un tableau de catégories
+  duration: Int!
   user: User! @relation(name: "UserOnCart")
   products: CartProduct
 }

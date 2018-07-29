@@ -4,7 +4,7 @@
     "watch": "nodemon src/index.js",
     "playground": "graphql playground --port 5000",
     "prisma": "prisma",
-    "deploy": "prisma deploy",
+    "deploy": "PRISMA_MANAGEMENT_API_SECRET=mysecret123 prisma deploy",
     "log": "prisma cluster logs",
     "lint": "eslint . --ext .js"
   },

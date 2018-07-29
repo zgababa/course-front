@@ -6,27 +6,31 @@ const {
   isShowCookedMealProducts,
 } = require('./selectProduct');
 
-function pickOneProductPerCategory(products, priceQualityProfile) {
+function pickProductPerCategory(products, priceQualityProfile, duration) {
+  const MEAL_PER_DAY = 2;
+  const quantityOfMeal = duration * MEAL_PER_DAY;
+
   const productsByCategory = _.groupBy(products, 'category.title');
 
-  return Object.keys(productsByCategory).map((key) => {
-    switch (priceQualityProfile) {
-      case 'BEST_PRICE':
-        return _.minBy(productsByCategory[key], 'price');
-      case 'BEST_PRICE_QUALITY_RATIO':
-        return _.maxBy(productsByCategory[key], 'priceQualityRatio');
-      case 'BEST_QUALITY':
-        return _.maxBy(productsByCategory[key], 'qualityRate');
-      default:
-        break;
-    }
-    return '';
-  });
+  return _.flatten(
+    Object.keys(productsByCategory).map((key) => {
+      switch (priceQualityProfile) {
+        case 'BEST_PRICE':
+          return _.sortBy(productsByCategory[key], 'price').slice(0, quantityOfMeal);
+        case 'BEST_PRICE_QUALITY_RATIO':
+          return _.sortBy(productsByCategory[key], 'priceQualityRatio').reverse().slice(0, quantityOfMeal);
+        case 'BEST_QUALITY':
+          return _.sortBy(productsByCategory[key], 'qualityRate').reverse().slice(0, quantityOfMeal);
+        default:
+          break;
+      }
+      return '';
+    }),
+  );
 }
 
 async function getProductsFromUser(ctx) {
   const userId = getUserId(ctx);
-
   const {
     isCooking, isLactoseIntolerant,
     isVegetarien, isVegetalien,
@@ -88,6 +92,7 @@ async function getAllowedSelectedProducts(ctx, info) {
     .reduce((a, b) => a.concat(b), [])
     .map(a => a.id);
 
+
   const allowedSelectedProductIds = _
     .differenceWith(selectedProductIds, forbiddenProductIds, _.isEqual);
 
@@ -104,11 +109,13 @@ async function getProductsFromCart(root, args, ctx, info) {
   const { weeklyBudget, priceQualityProfile } = await ctx.db.query.user({ where: { id: userId } },
     '{weeklyBudget priceQualityProfile}');
 
-  const pickedProducts = pickOneProductPerCategory(allowedSelectedProducts, priceQualityProfile);
+  const { duration } = await ctx.db.query
+    .cart({ where: { id: info.variableValues.id } }, '{ duration }'); // À optimiser, on devrait avoir l'info dans les args
+
+  const pickedProducts = pickProductPerCategory(allowedSelectedProducts, priceQualityProfile, duration);
 
   const productsInBudget = removeProductsOutOfBudget(pickedProducts, weeklyBudget);
   const productOutBudget = _.differenceWith(pickedProducts, productsInBudget, _.isEqual);
-
   return {
     included: productsInBudget,
     total: totalPrice(productsInBudget),

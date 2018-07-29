@@ -15,3 +15,9 @@ datamodel: datamodel.graphql
 
 #service : api, server : local, stage : dev
 endpoint: http://localhost:4466/api/dev
+
+hooks:
+  post-deploy:
+    - echo "Deployment finished"
+    - graphql get-schema --project prisma
+    - graphql prepare
