@@ -8,7 +8,19 @@ const {
 
 function pickProductPerCategory(products, priceQualityProfile, duration) {
   const MEAL_PER_DAY = 2;
-  const quantityOfMeal = duration * MEAL_PER_DAY;
+  const fullMeal = duration * MEAL_PER_DAY;
+  const categoryQuantity = {
+    'Légumes surgelé': fullMeal,
+    'Légumes frais': fullMeal,
+    'Fruits frais': fullMeal,
+    Viande: fullMeal,
+    'Eaux plates': 1,
+    'Eaux pétillantes': 1,
+    Oeufs: 1,
+    Café: 1,
+    Thé: 1,
+    Lait: 1,
+  };
 
   const productsByCategory = _.groupBy(products, 'category.title');
 
@@ -16,11 +28,11 @@ function pickProductPerCategory(products, priceQualityProfile, duration) {
     Object.keys(productsByCategory).map((key) => {
       switch (priceQualityProfile) {
         case 'BEST_PRICE':
-          return _.sortBy(productsByCategory[key], 'price').slice(0, quantityOfMeal);
+          return _.sortBy(productsByCategory[key], 'price').slice(0, categoryQuantity[key]);
         case 'BEST_PRICE_QUALITY_RATIO':
-          return _.sortBy(productsByCategory[key], 'priceQualityRatio').reverse().slice(0, quantityOfMeal);
+          return _.sortBy(productsByCategory[key], 'priceQualityRatio').reverse().slice(0, categoryQuantity[key]);
         case 'BEST_QUALITY':
-          return _.sortBy(productsByCategory[key], 'qualityRate').reverse().slice(0, quantityOfMeal);
+          return _.sortBy(productsByCategory[key], 'qualityRate').reverse().slice(0, categoryQuantity[key]);
         default:
           break;
       }
@@ -112,7 +124,9 @@ async function getProductsFromCart(root, args, ctx, info) {
   const { duration } = await ctx.db.query
     .cart({ where: { id: info.variableValues.id } }, '{ duration }'); // À optimiser, on devrait avoir l'info dans les args
 
-  const pickedProducts = pickProductPerCategory(allowedSelectedProducts, priceQualityProfile, duration);
+  const pickedProducts = pickProductPerCategory(
+    allowedSelectedProducts, priceQualityProfile, duration,
+  );
 
   const productsInBudget = removeProductsOutOfBudget(pickedProducts, weeklyBudget);
   const productOutBudget = _.differenceWith(pickedProducts, productsInBudget, _.isEqual);
