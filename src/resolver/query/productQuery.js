@@ -9,7 +9,7 @@ const {
 function pickProductPerCategory(products, priceQualityProfile, duration) {
   const MEAL_PER_DAY = 2;
   const fullMeal = duration * MEAL_PER_DAY;
-  const categoryQuantity = {
+  const quantityByCategory = {
     'Légumes surgelé': fullMeal,
     'Légumes frais': fullMeal,
     'Fruits frais': fullMeal,
@@ -28,11 +28,11 @@ function pickProductPerCategory(products, priceQualityProfile, duration) {
     Object.keys(productsByCategory).map((key) => {
       switch (priceQualityProfile) {
         case 'BEST_PRICE':
-          return _.sortBy(productsByCategory[key], 'price').slice(0, categoryQuantity[key]);
+          return _.sortBy(productsByCategory[key], 'price').slice(0, quantityByCategory[key]);
         case 'BEST_PRICE_QUALITY_RATIO':
-          return _.sortBy(productsByCategory[key], 'priceQualityRatio').reverse().slice(0, categoryQuantity[key]);
+          return _.sortBy(productsByCategory[key], 'priceQualityRatio').reverse().slice(0, quantityByCategory[key]);
         case 'BEST_QUALITY':
-          return _.sortBy(productsByCategory[key], 'qualityRate').reverse().slice(0, categoryQuantity[key]);
+          return _.sortBy(productsByCategory[key], 'qualityRate').reverse().slice(0, quantityByCategory[key]);
         default:
           break;
       }
@@ -87,9 +87,7 @@ async function getProductsFromUser(ctx) {
   };
 }
 
-async function getAllowedSelectedProducts(ctx, info) {
-  const cartId = info.variableValues.id;
-
+async function getAllowedSelectedProducts(ctx, cartId) {
   const { selectedCategories } = await ctx.db.query
     .cart({ where: { id: cartId } }, '{selectedCategories { products {id title}} }');
 
@@ -113,16 +111,17 @@ async function getAllowedSelectedProducts(ctx, info) {
   }, '{id title price qualityRate priceQualityRatio category {id title}}');
 }
 
-async function getProductsFromCart(root, args, ctx, info) {
+async function getProductsFromCart(cart, args, ctx) {
   const userId = getUserId(ctx);
+  const cartId = cart.id;
 
-  const allowedSelectedProducts = await getAllowedSelectedProducts(ctx, info);
+  const allowedSelectedProducts = await getAllowedSelectedProducts(ctx, cartId);
 
   const { weeklyBudget, priceQualityProfile } = await ctx.db.query.user({ where: { id: userId } },
     '{weeklyBudget priceQualityProfile}');
 
   const { duration } = await ctx.db.query
-    .cart({ where: { id: info.variableValues.id } }, '{ duration }'); // À optimiser, on devrait avoir l'info dans les args
+    .cart({ where: { id: cartId } }, '{ duration }'); // À optimiser, on devrait avoir l'info dans les args
 
   const pickedProducts = pickProductPerCategory(
     allowedSelectedProducts, priceQualityProfile, duration,

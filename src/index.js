@@ -1,13 +1,12 @@
 const { GraphQLServer } = require('graphql-yoga');
-const { Prisma } = require('prisma-binding');
+const { Prisma, extractFragmentReplacements } = require('prisma-binding');
 const winston = require('winston');
 const chalk = require('chalk');
 const { resolvers } = require('./resolver');
 
+
 const { combine, printf, colorize } = winston.format;
-
 const myFormat = printf(info => `${info.level}: ${chalk.blue(info.message)}`);
-
 const logger = winston.createLogger({
   level: 'info',
   format: combine(
@@ -18,8 +17,9 @@ const logger = winston.createLogger({
     new winston.transports.Console(),
   ],
 });
-
 winston.add(logger);
+
+const fragmentReplacements = extractFragmentReplacements(resolvers);
 
 const server = new GraphQLServer({
   typeDefs: './src/schema.graphql',
@@ -34,6 +34,7 @@ const server = new GraphQLServer({
       endpoint: 'http://localhost:4466/api/dev', // the endpoint of the Prisma DB service
       secret: 'mysecret123', // specified in database/prisma.yml
       debug: false, // log all GraphQL queryies & mutations
+      fragmentReplacements,
     }),
   }),
 });

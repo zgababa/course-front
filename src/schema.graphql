@@ -1,7 +1,13 @@
 # import ProductWhereInput, ProductOrderByInput from "./generated/prisma.graphql"
-# import Category, CategoryWhereInput, CategoryOrderByInput from "./generated/prisma.graphql"
-# import Cart, CartWhereInput, CartOrderByInput, CartCreateInput from "./generated/prisma.graphql"
-# import User, UserWhereInput, UserOrderByInput, UserCreateInput from "./generated/prisma.graphql"
+# import CategoryWhereInput, CategoryOrderByInput from "./generated/prisma.graphql"
+# import CartWhereInput, CartOrderByInput, CartCreateInput from "./generated/prisma.graphql"
+# import UserWhereInput, UserOrderByInput, UserCreateInput from "./generated/prisma.graphql"
+
+# import Product from "./types.graphql"
+# import Category from "./types.graphql"
+# import Cart from "./types.graphql"
+# import User from "./types.graphql"
+# import Product from "./types.graphql"
 
 type Query {
   product(where: ProductWhereInput): Product!

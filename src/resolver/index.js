@@ -36,7 +36,10 @@ module.exports = {
       products: async (root, args, ctx) => getProductsFromUser(ctx),
     },
     Cart: {
-      products: async (root, args, Context) => getProductsFromCart(root, args, Context),
+      products: {
+        fragment: 'fragment CartId on Cart { id }',
+        resolve: getProductsFromCart,
+      },
     },
   },
 };

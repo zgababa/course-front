@@ -1,0 +1,94 @@
+type Product {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  title: String!
+  url: String!
+  imageUrl: String!
+  price: Float
+  pricePerKilo: Float
+  isCookedMeal: Boolean
+  isMilkInside: Boolean
+  isMeatInside: Boolean
+  isEggInside: Boolean
+  category: Category
+  qualityRate: Int
+  priceQualityRatio: Float
+}
+
+type Category {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  title: String!
+  url: String!
+  products: [Product!]!
+}
+
+type Cart {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  selectedCategories: [Category!]!
+  duration: Int!
+  user: User!
+  products: CartProduct
+}
+
+type User {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  email: String!
+  password: String!
+  gender: Gender!
+  weeklyBudget: Int!
+  age: Int
+  isCooking: Boolean
+  isLactoseIntolerant: Boolean
+  isVegetarien: Boolean
+  isVegetalien: Boolean
+  falseAllowedProductIds: [ID!]!
+  falseForbiddenProductIds: [ID!]!
+  products: UserProduct
+  priceQualityProfile: PriceQualityProfile
+  nutritionProfile: NutritionProfile
+}
+
+type UserProduct {
+  id: ID!
+  allowed: [Product!]!
+  forbidden: [Product!]!
+}
+
+type CartProduct {
+  id: ID!
+  total: Float!
+  included: [Product!]!
+  excluded: [Product!]!
+}
+
+type NutritionProfile {
+  id: ID!
+  quality: NutritionProfilePrice!,
+  famous: NutritionProfileFamous!,
+  bio: NutritionProfileBio!,
+  healthy: NutritionProfileHealthy!
+}
+
+type NutritionProfilePrice {
+  id: ID!
+  quantityOrQuality: Boolean!
+}
+type NutritionProfileFamous {
+  id: ID!
+  quantityOrFamous: Boolean!
+}
+type NutritionProfileBio {
+  id: ID!
+  quantityOrBio: Boolean!
+}
+type NutritionProfileHealthy {
+  id: ID!
+  quantityOrHealthy: Boolean!
+}
