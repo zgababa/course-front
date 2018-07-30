@@ -1,3 +1,5 @@
+# Utilisez par graphiql, graphqlcli...
+
 projects:
   app:
     schemaPath: "src/schema.graphql"
@@ -8,7 +10,7 @@ projects:
     schemaPath: "src/generated/prisma.graphql"
     extensions:
       prisma: database/prisma.yml
-  # database:
-  #   schemaPath: "src/database/datamodel.graphql"
-  #   extensions:
-  #     prisma: database/prisma.yml
+  database:
+    schemaPath: "src/database/datamodel.graphql" # à tester si plutôt src/generated/prisma.graphql
+    extensions:
+      prisma: database/prisma.yml

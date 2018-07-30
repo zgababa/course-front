@@ -36,7 +36,7 @@ module.exports = {
       products: async (root, args, ctx) => getProductsFromUser(ctx),
     },
     Cart: {
-      products: getProductsFromCart,
+      products: async (root, args, Context) => getProductsFromCart(root, args, Context),
     },
   },
 };
