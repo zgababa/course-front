@@ -1,23 +1,11 @@
-# # the name for the service (will be part of the service's HTTP endpoint)
-# service: api
-#
-# the cluster and stage the service is deployed to
-# stage: dev
-#
-# cluster: local
-
-
-# to disable authentication, remove the secret property
 secret: mysecret123
 
 datamodel: datamodel.graphql
 
-
-#service : api, server : local, stage : dev
-endpoint: http://localhost:4466/api/dev
+endpoint: http://localhost:4466
 
 hooks:
   post-deploy:
     - echo "Deployment finished"
     - graphql get-schema --project prisma
-    - graphql prepare
+    - graphql codegen
