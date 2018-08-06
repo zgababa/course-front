@@ -27,10 +27,11 @@ type Mutation {
   createCart(data: CartCreateInput!): Cart!
   updateCart(data: CartUpdateInput!, where: CartWhereUniqueInput!): Cart!
   createUser(data: UserCreateInput!): User!
-  updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User!
   updateProduct(data: ProductUpdateInput!, where: ProductWhereUniqueInput!): Product!
   signup(data: UserCreateInput!): AuthPayload!
   login(email: String!, password: String!): AuthPayload!
+  removeFalseAllowedProductFromCart(cartId: ID!, productId: ID!, userId: ID!): Cart!
 }
 
 type AuthPayload {
