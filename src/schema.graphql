@@ -25,6 +25,7 @@ type Mutation {
   scrapProducts: [Product]
   scrapCategories: [Category]
   createCart(data: CartCreateInput!): Cart!
+  updateCart(data: CartUpdateInput!, where: CartWhereUniqueInput!): Cart!
   createUser(data: UserCreateInput!): User!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
   updateProduct(data: ProductUpdateInput!, where: ProductWhereUniqueInput!): Product!

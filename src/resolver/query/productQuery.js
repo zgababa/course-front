@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const winston = require('winston');
 const { getUserId } = require('../utils');
 const { removeProductsOutOfBudget, totalPrice } = require('./priceProduct');
 const {
@@ -111,7 +112,7 @@ async function getAllowedSelectedProducts(ctx, cartId) {
   }, '{id title price qualityRate priceQualityRatio category {id title}}');
 }
 
-async function getProductsFromCart(cart, args, ctx) {
+async function getProductsFromCart(cart, args, ctx, info) {
   const userId = getUserId(ctx);
   const cartId = cart.id;
 
@@ -121,7 +122,7 @@ async function getProductsFromCart(cart, args, ctx) {
     '{weeklyBudget priceQualityProfile}');
 
   const { duration } = await ctx.db.query
-    .cart({ where: { id: cartId } }, '{ duration }'); // À optimiser, on devrait avoir l'info dans les args
+    .cart({ where: { id: cartId } }, '{ duration }');
 
   const pickedProducts = pickProductPerCategory(
     allowedSelectedProducts, priceQualityProfile, duration,
@@ -129,11 +130,30 @@ async function getProductsFromCart(cart, args, ctx) {
 
   const productsInBudget = removeProductsOutOfBudget(pickedProducts, weeklyBudget);
   const productOutBudget = _.differenceWith(pickedProducts, productsInBudget, _.isEqual);
-  return {
+  const productCart = {
     included: productsInBudget,
     total: totalPrice(productsInBudget),
     excluded: productOutBudget,
   };
+
+  await ctx.db.mutation.updateCart({
+    where: { id: cartId },
+    data: {
+      products: {
+        create: {
+          total: productCart.total,
+          included: {
+            connect: _.map(productsInBudget, item => ({ id: item.id })),
+          },
+          excluded: {
+            connect: _.map(productOutBudget, item => ({ id: item.id })),
+          },
+        },
+      },
+    },
+  }, info);
+
+  return productCart;
 }
 
 

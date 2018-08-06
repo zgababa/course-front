@@ -23,6 +23,7 @@ module.exports = {
       scrapProducts,
       scrapCategories,
       createCart: forwardTo('db'),
+      updateCart: forwardTo('db'),
       createUser: forwardTo('db'),
       updateUser: forwardTo('db'),
       updateProduct: forwardTo('db'),
@@ -38,7 +39,12 @@ module.exports = {
     Cart: {
       products: {
         fragment: 'fragment CartId on Cart { id }',
-        resolve: getProductsFromCart,
+        resolve: async (root, args, ctx, info) => {
+          if (!root.products) {
+            return getProductsFromCart(root, args, ctx, info);
+          }
+          return root.products;
+        },
       },
     },
   },
