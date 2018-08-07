@@ -32,6 +32,8 @@ type Mutation {
   signup(data: UserCreateInput!): AuthPayload!
   login(email: String!, password: String!): AuthPayload!
   removeFalseAllowedProductFromCart(cartId: ID!, productId: ID!, userId: ID!): Cart!
+  removeProductFromCart(cartId: ID!, productId: ID!): Cart!
+  addMoreProductToCart(cartId: ID!, cartProductId: ID!, quantity: Int!): Cart!
 }
 
 type AuthPayload {

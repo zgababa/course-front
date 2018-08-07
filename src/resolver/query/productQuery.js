@@ -136,6 +136,15 @@ async function getProductsFromCart(cart, args, ctx, info) {
     excluded: productOutBudget,
   };
 
+  const createProducts = _.map(productsInBudget, item => (
+    {
+      quantity: 1,
+      product: {
+        connect: { id: item.id },
+      },
+    }
+  ));
+
   await ctx.db.mutation.updateCart({
     where: { id: cartId },
     data: {
@@ -143,7 +152,7 @@ async function getProductsFromCart(cart, args, ctx, info) {
         create: {
           total: productCart.total,
           included: {
-            connect: _.map(productsInBudget, item => ({ id: item.id })),
+            create: createProducts,
           },
           excluded: {
             connect: _.map(productOutBudget, item => ({ id: item.id })),

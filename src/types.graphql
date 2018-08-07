@@ -64,8 +64,14 @@ type UserProduct {
 type CartProduct {
   id: ID!
   total: Float!
-  included: [Product!]!
+  included: [CartProductIncluded!]!
   excluded: [Product!]!
+}
+
+type CartProductIncluded {
+  id: ID!
+  quantity: Int!
+  product: Product!
 }
 
 type NutritionProfile {

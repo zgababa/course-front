@@ -17,8 +17,8 @@ type Product {
 
   _uselessAllowedProducts: UserProduct @relation(name: "UserProductAllowed")
   _uselessForbiddenProducts: UserProduct @relation(name: "UserProductForbidden")
-  _uselessIncludedProducts: CartProduct @relation(name: "CartProductIncluded")
-  _uselessExcludedProducts: CartProduct @relation(name: "CartProductExcluded")
+  _uselessIncludedProducts: CartProductIncluded @relation(name: "RelationCartProductIncluded")
+  _uselessExcludedProducts: CartProduct @relation(name: "RelationCartProductExcluded")
 }
 
 type Category {
@@ -69,8 +69,14 @@ type UserProduct {
 type CartProduct {
   id: ID! @unique
   total: Float!
-  included: [Product!]! @relation(name: "CartProductIncluded")
-  excluded: [Product!]! @relation(name: "CartProductExcluded")
+  included: [CartProductIncluded!]!
+  excluded: [Product!]! @relation(name: "RelationCartProductExcluded")
+}
+
+type CartProductIncluded {
+  id: ID! @unique
+  quantity: Int!
+  product: Product! @relation(name: "RelationCartProductIncluded")
 }
 
 type NutritionProfile {

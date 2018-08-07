@@ -3,7 +3,7 @@ const { forwardTo } = require('prisma-binding');
 const { scrapProduct, scrapProducts, scrapCategories } = require('./mutation/scrapMutation');
 const { getProductsFromCart, getProductsFromUser } = require('./query/productQuery');
 const { me, signup, login } = require('./auth');
-const { removeFalseAllowedProductFromCart } = require('./mutation/cartMutation');
+const { removeFalseAllowedProductFromCart, removeProductFromCart, addMoreProductToCart } = require('./mutation/cartMutation');
 
 
 module.exports = {
@@ -31,6 +31,8 @@ module.exports = {
       signup,
       login,
       removeFalseAllowedProductFromCart,
+      removeProductFromCart,
+      addMoreProductToCart,
     },
     AuthPayload: {
       user: async ({ user: { id } }, args, ctx, info) => ctx.db.query.user({ where: { id } }, info),
