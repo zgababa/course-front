@@ -130,11 +130,6 @@ async function getProductsFromCart(cart, args, ctx, info) {
 
   const productsInBudget = removeProductsOutOfBudget(pickedProducts, weeklyBudget);
   const productOutBudget = _.differenceWith(pickedProducts, productsInBudget, _.isEqual);
-  const productCart = {
-    included: productsInBudget,
-    total: totalPrice(productsInBudget),
-    excluded: productOutBudget,
-  };
 
   const createProducts = _.map(productsInBudget, item => (
     {
@@ -145,12 +140,12 @@ async function getProductsFromCart(cart, args, ctx, info) {
     }
   ));
 
-  await ctx.db.mutation.updateCart({
+  const cartUpdated = await ctx.db.mutation.updateCart({
     where: { id: cartId },
     data: {
       products: {
         create: {
-          total: productCart.total,
+          total: totalPrice(productsInBudget),
           included: {
             create: createProducts,
           },
@@ -160,9 +155,9 @@ async function getProductsFromCart(cart, args, ctx, info) {
         },
       },
     },
-  }, info);
+  }, '{id products { id }}');
 
-  return productCart;
+  return ctx.db.query.cartProduct({ where: { id: cartUpdated.products.id } }, info);
 }
 
 

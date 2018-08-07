@@ -17,7 +17,6 @@ type Product {
 
   _uselessAllowedProducts: UserProduct @relation(name: "UserProductAllowed")
   _uselessForbiddenProducts: UserProduct @relation(name: "UserProductForbidden")
-  _uselessIncludedProducts: CartProductIncluded @relation(name: "RelationCartProductIncluded")
   _uselessExcludedProducts: CartProduct @relation(name: "RelationCartProductExcluded")
 }
 
@@ -76,7 +75,7 @@ type CartProduct {
 type CartProductIncluded {
   id: ID! @unique
   quantity: Int!
-  product: Product! @relation(name: "RelationCartProductIncluded")
+  product: Product!
 }
 
 type NutritionProfile {
