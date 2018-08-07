@@ -50,6 +50,7 @@ type User {
   isVegetalien: Boolean
   falseAllowedProductIds: [ID!]!
   falseForbiddenProductIds: [ID!]!
+  favouriteProductsIds: [ID!]!
   products: UserProduct
   priceQualityProfile: PriceQualityProfile
   nutritionProfile: NutritionProfile

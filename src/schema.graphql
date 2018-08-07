@@ -34,6 +34,8 @@ type Mutation {
   removeFalseAllowedProductFromCart(cartId: ID!, productId: ID!, userId: ID!): Cart!
   removeProductFromCart(cartId: ID!, productId: ID!): Cart!
   addMoreProductToCart(cartId: ID!, cartProductId: ID!, quantity: Int!): Cart!
+  addFavouriteProductToUser(userId: ID!, productId: ID!): User!
+  removeFavouriteProductToUser(userId: ID!, productId: ID!): User!
 }
 
 type AuthPayload {

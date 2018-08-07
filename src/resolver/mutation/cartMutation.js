@@ -1,4 +1,20 @@
-const _ = require('lodash');
+async function removeProductFromCart(root, { productId, cartId }, ctx, info) {
+  const { products } = await ctx.db.query.cart({ where: { id: cartId } }, '{products {included { id product { id } }}}');
+  const cartProductIncludedId = products.included.find(item => item.product.id === productId).id;
+  return ctx.db.mutation.updateCart({
+    where: { id: cartId },
+    data: {
+      products: {
+        update: {
+          included: {
+            disconnect: [{ id: cartProductIncludedId }],
+          },
+        },
+      },
+    },
+  }, info);
+}
+
 
 async function removeFalseAllowedProductFromCart(root, { userId, productId, cartId }, ctx, info) {
   const { falseAllowedProductIds } = await ctx.db.query.user({ where: { id: userId } }, '{ falseAllowedProductIds }');
@@ -18,33 +34,7 @@ async function removeFalseAllowedProductFromCart(root, { userId, productId, cart
     },
   });
 
-  return ctx.db.mutation.updateCart({
-    where: { id: cartId },
-    data: {
-      products: {
-        update: {
-          included: {
-            disconnect: [{ id: productId }],
-          },
-        },
-      },
-    },
-  }, info);
-}
-
-async function removeProductFromCart(root, { productId, cartId }, ctx, info) {
-  return ctx.db.mutation.updateCart({
-    where: { id: cartId },
-    data: {
-      products: {
-        update: {
-          included: {
-            disconnect: [{ id: productId }],
-          },
-        },
-      },
-    },
-  }, info);
+  return removeProductFromCart(null, { productId, cartId }, ctx, info);
 }
 
 async function addMoreProductToCart(root, { cartId, cartProductId, quantity }, ctx, info) {
@@ -63,7 +53,6 @@ async function addMoreProductToCart(root, { cartId, cartProductId, quantity }, c
               },
             },
           },
-
         },
       },
     },
