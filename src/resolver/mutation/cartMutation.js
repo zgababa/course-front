@@ -59,4 +59,32 @@ async function addMoreProductToCart(root, { cartId, cartProductId, quantity }, c
   }, info);
 }
 
-module.exports = { removeFalseAllowedProductFromCart, removeProductFromCart, addMoreProductToCart };
+async function addProductToCart(root, { productId, cartId }, ctx, info) {
+  return ctx.db.mutation.updateCart({
+    where: { id: cartId },
+    data: {
+      products: {
+        update: {
+          included: {
+            create: [{
+              quantity: 1,
+              product: {
+                connect: { id: productId },
+              },
+            }]
+          },
+          excluded: {
+            disconnect: [{id : productId }]
+          }
+        },
+      },
+    },
+  }, info);
+}
+
+module.exports = {
+  removeFalseAllowedProductFromCart,
+  removeProductFromCart,
+  addMoreProductToCart,
+  addProductToCart
+};

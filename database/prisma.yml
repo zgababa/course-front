@@ -1,4 +1,4 @@
-secret: mysecret123
+secret: testSecret
 
 datamodel: datamodel.graphql
 

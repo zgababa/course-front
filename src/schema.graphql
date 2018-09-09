@@ -36,6 +36,7 @@ type Mutation {
   addMoreProductToCart(cartId: ID!, cartProductId: ID!, quantity: Int!): Cart!
   addFavouriteProductToUser(userId: ID!, productId: ID!): User!
   removeFavouriteProductToUser(userId: ID!, productId: ID!): User!
+  addProductToCart(cartId: ID!, productId: ID!): Cart!
 }
 
 type AuthPayload {

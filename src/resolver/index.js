@@ -4,7 +4,7 @@ const { scrapProduct, scrapProducts, scrapCategories } = require('./mutation/scr
 const { getProductsFromCart, getProductsFromUser } = require('./query/productQuery');
 const { me, signup, login } = require('./auth');
 const {
-  removeFalseAllowedProductFromCart, removeProductFromCart, addMoreProductToCart,
+  removeFalseAllowedProductFromCart, removeProductFromCart, addMoreProductToCart, addProductToCart
 } = require('./mutation/cartMutation');
 const { addFavouriteProductToUser, removeFavouriteProductToUser } = require('./mutation/userMutation');
 
@@ -15,6 +15,7 @@ module.exports = {
       products: forwardTo('db'),
       categories: forwardTo('db'),
       category: forwardTo('db'),
+
       cart: forwardTo('db'),
       carts: forwardTo('db'),
       user: forwardTo('db'),
@@ -22,6 +23,9 @@ module.exports = {
       me,
     },
     Mutation: {
+      signup,
+      login,
+
       scrapProduct,
       scrapProducts,
       scrapCategories,
@@ -30,13 +34,12 @@ module.exports = {
       createUser: forwardTo('db'),
       updateUser: forwardTo('db'),
       updateProduct: forwardTo('db'),
-      signup,
-      login,
       removeFalseAllowedProductFromCart,
       removeProductFromCart,
       addMoreProductToCart,
       addFavouriteProductToUser,
       removeFavouriteProductToUser,
+      addProductToCart,
     },
     AuthPayload: {
       user: async ({ user: { id } }, args, ctx, info) => ctx.db.query.user({ where: { id } }, info),

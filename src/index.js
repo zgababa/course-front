@@ -33,7 +33,7 @@ try {
       db: new Prisma({
         typeDefs: 'src/generated/prisma.graphql',
         endpoint: 'http://localhost:4466', // the endpoint of the Prisma DB service
-        secret: 'mysecret123', // specified in database/prisma.yml
+        secret: 'testSecret', // specified in database/prisma.yml
         debug: false, // log all GraphQL queryies & mutations
         fragmentReplacements,
       }),
