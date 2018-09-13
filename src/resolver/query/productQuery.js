@@ -1,5 +1,6 @@
 const _ = require('lodash');
-const { getUserId } = require('../utils');
+const { getUserId } = require('graphql-authentication');
+
 const { removeProductsOutOfBudget, totalPrice } = require('./priceProduct');
 const {
   isShowMilkInsideProducts, isShowVegetarienProducts, isShowVegetalienProducts,

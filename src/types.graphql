@@ -41,8 +41,20 @@ type User {
   updatedAt: DateTime!
   email: String!
   password: String!
-  gender: Gender!
-  weeklyBudget: Int!
+  name: String!
+  role: Role
+  inviteToken: String
+  inviteAccepted: Boolean!
+  emailConfirmed: Boolean!
+  emailConfirmToken: String
+  resetToken: String
+  resetExpires: DateTime
+  deletedAt: DateTime
+  lastLogin: DateTime
+  joinedAt: DateTime!
+  isSuper: Boolean!
+  gender: Gender
+  weeklyBudget: Int
   age: Int
   isCooking: Boolean
   isLactoseIntolerant: Boolean

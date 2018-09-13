@@ -1,3 +1,5 @@
+# import Query.*, Mutation.* from "../node_modules/graphql-authentication/schema.graphql"
+
 # import ProductWhereInput, ProductOrderByInput from "./generated/prisma.graphql"
 # import CategoryWhereInput, CategoryOrderByInput from "./generated/prisma.graphql"
 # import CartWhereInput, CartOrderByInput, CartCreateInput from "./generated/prisma.graphql"
@@ -9,16 +11,18 @@
 # import User from "./types.graphql"
 # import Product from "./types.graphql"
 
+#import * from "./directives.graphql"
+
+
 type Query {
   product(where: ProductWhereInput): Product!
   products(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Product]!
   category(where: ProductWhereInput): Category!
   categories(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Category]!
-  cart(where: CartWhereInput): Cart!
-  carts(where: CartWhereInput, orderBy: CartOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Cart]!
-  user(where: UserWhereUniqueInput): User!
-  users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
-  me: User
+  cart(where: CartWhereInput): Cart! @auth(requires: USER)
+  carts(where: CartWhereInput, orderBy: CartOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Cart]! @auth(requires: USER)
+  user(where: UserWhereUniqueInput): User! @auth(requires: USER)
+  users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]! @auth(requires: ADMIN)
 }
 type Mutation {
   scrapProduct(categoryId: ID!): [Product]
@@ -29,8 +33,8 @@ type Mutation {
   createUser(data: UserCreateInput!): User!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User!
   updateProduct(data: ProductUpdateInput!, where: ProductWhereUniqueInput!): Product!
-  signup(data: UserCreateInput!): AuthPayload!
-  login(email: String!, password: String!): AuthPayload!
+  # signup(data: UserCreateInput!): AuthPayload!
+  # login(email: String!, password: String!): AuthPayload!
   removeFalseAllowedProductFromCart(cartId: ID!, productId: ID!, userId: ID!): Cart!
   removeProductFromCart(cartId: ID!, productId: ID!): Cart!
   addMoreProductToCart(cartId: ID!, cartProductId: ID!, quantity: Int!): Cart!
@@ -39,7 +43,9 @@ type Mutation {
   addProductToCart(cartId: ID!, productId: ID!): Cart!
 }
 
-type AuthPayload {
-  token: String!
-  user: User!
-}
+
+
+# type AuthPayload {
+#   token: String!
+#   user: User!
+# }

@@ -16,6 +16,8 @@
     "email-templates": "^5.0.0",
     "graphql-authentication": "^0.5.5",
     "graphql-authentication-prisma": "^0.1.5",
+    "graphql-shield": "^3.2.1",
+    "graphql-tools": "^3.1.1",
     "graphql-yoga": "^1.15.0",
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.10",

@@ -43,10 +43,25 @@ type User {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
+
+  # specify to graphql-authentication
   email: String! @unique
   password: String!
-  gender: Gender!
-  weeklyBudget: Int!
+  name: String!
+  inviteToken: String
+  inviteAccepted: Boolean! @default(value: "true")
+  emailConfirmed: Boolean! @default(value: "true")
+  emailConfirmToken: String
+  resetToken: String
+  resetExpires: DateTime
+  deletedAt: DateTime
+  lastLogin: DateTime
+  joinedAt: DateTime!
+  isSuper: Boolean! @default(value: "false")
+  role: Role @default(value: USER)
+
+  gender: Gender @default(value: MALE)
+  weeklyBudget: Int @default(value: 60)
   age: Int
   isCooking: Boolean
   isLactoseIntolerant: Boolean
@@ -113,4 +128,9 @@ enum PriceQualityProfile {
   BEST_PRICE
   BEST_PRICE_QUALITY_RATIO
   BEST_QUALITY
+}
+
+enum Role {
+  ADMIN
+  USER
 }
