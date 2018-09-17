@@ -63,15 +63,15 @@ type User {
   gender: Gender @default(value: MALE)
   weeklyBudget: Int @default(value: 60)
   age: Int
-  isCooking: Boolean
-  isLactoseIntolerant: Boolean
-  isVegetarien: Boolean
-  isVegetalien: Boolean
+  isCooking: Boolean @default(value: "true")
+  isLactoseIntolerant: Boolean @default(value: "false")
+  isVegetarien: Boolean @default(value: "false")
+  isVegetalien: Boolean @default(value: "false")
   falseAllowedProductIds: [ID!]!
   falseForbiddenProductIds: [ID!]!
   favouriteProductsIds: [ID!]!
   products: UserProduct
-  priceQualityProfile: PriceQualityProfile
+  priceQualityProfile: PriceQualityProfile @default(value: BEST_PRICE)
   nutritionProfile: NutritionProfile
 }
 

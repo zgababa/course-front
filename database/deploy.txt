@@ -23,5 +23,13 @@ Liste des étape pour mettre à jour proprement le server prisma
       - "3306:3306"
   Ceci expose le port 3306 au public et devient accessible à un client mysql par exemple
 
-6) Pour le scrap, lancer l'image mongo 
+6) Pour le scrap, lancer l'image mongo
   - docker run --name some-mongo -p 27017:27017 -d mongo
+
+
+Docker :
+1) Lancer le docker en développement :
+docker-compose up -d
+
+2) Lancer le docker en prod
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up

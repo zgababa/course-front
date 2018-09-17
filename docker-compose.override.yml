@@ -1,0 +1,7 @@
+version: '3'
+services:
+  web:
+    command: ./wait-for-it.sh prisma:4466 -- bash -c "npm run watch"
+    volumes:
+      - .:/code
+      - /code/node_modules

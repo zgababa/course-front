@@ -71,11 +71,11 @@ async function addProductToCart(root, { productId, cartId }, ctx, info) {
               product: {
                 connect: { id: productId },
               },
-            }]
+            }],
           },
           excluded: {
-            disconnect: [{id : productId }]
-          }
+            disconnect: [{ id: productId }],
+          },
         },
       },
     },
@@ -86,5 +86,5 @@ module.exports = {
   removeFalseAllowedProductFromCart,
   removeProductFromCart,
   addMoreProductToCart,
-  addProductToCart
+  addProductToCart,
 };

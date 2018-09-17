@@ -1,0 +1,7 @@
+version: '3'
+services:
+  web:
+    build:
+      context: ./
+      dockerfile: Dockerfile.prod
+    command: ./wait-for-it.sh prisma:4466 -- bash -c "npm start"

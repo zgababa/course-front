@@ -115,9 +115,7 @@ async function getAllowedSelectedProducts(ctx, cartId) {
 async function getProductsFromCart(cart, args, ctx, info) {
   const userId = getUserId(ctx);
   const cartId = cart.id;
-
   const allowedSelectedProducts = await getAllowedSelectedProducts(ctx, cartId);
-
   const { weeklyBudget, priceQualityProfile } = await ctx.db.query.user({ where: { id: userId } },
     '{weeklyBudget priceQualityProfile}');
 
@@ -130,7 +128,6 @@ async function getProductsFromCart(cart, args, ctx, info) {
 
   const productsInBudget = removeProductsOutOfBudget(pickedProducts, weeklyBudget);
   const productOutBudget = _.differenceWith(pickedProducts, productsInBudget, _.isEqual);
-
   const createProducts = _.map(productsInBudget, item => (
     {
       quantity: 1,

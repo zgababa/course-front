@@ -7,6 +7,7 @@ const chalk = require('chalk');
 const { resolvers } = require('./resolver');
 const { AuthDirective } = require('./directives');
 
+const PORT = 4000;
 
 const { combine, printf, colorize } = winston.format;
 const myFormat = printf(info => `${info.level}: ${chalk.blue(info.message)}`);
@@ -42,7 +43,7 @@ try {
       }),
       db: new Prisma({
         typeDefs: 'src/generated/prisma.graphql',
-        endpoint: 'http://localhost:4466', // the endpoint of the Prisma DB service
+        endpoint: process.env.PRISMA_ENDPOINT || 'http://localhost:4466', // the endpoint of the Prisma DB service
         secret: 'testSecret', // specified in database/prisma.yml
         debug: false, // log all GraphQL queryies & mutations
         fragmentReplacements,
@@ -50,7 +51,9 @@ try {
     }),
   });
 
-  server.start(() => winston.info('Server is running on http://localhost:4466'));
+  server.start({ port: PORT }, ({ port }) => winston.info(
+    `Server started, listening on port ${port} for incoming requests. Watch it !`,
+  ));
 } catch (e) {
   winston.error(e);
 }

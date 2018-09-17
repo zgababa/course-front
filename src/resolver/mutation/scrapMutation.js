@@ -1,7 +1,6 @@
 const Promise = require('bluebird');
 const winston = require('winston');
-const scrapProductsByCategory = require('../../../../scrapping/product/productByCategory.js');
-const categoriesJSON = require('../../../../scrapping/category/category.json');
+const axios = require('axios');
 
 async function createProduct(ctx, category, product) {
   return ctx.db.mutation.createProduct({
@@ -27,7 +26,8 @@ async function createProduct(ctx, category, product) {
 async function scrapProduct(root, { categoryId }, ctx, info) {
   const category = await ctx.db.query.category({ where: { id: categoryId } });
   if (!category.url) throw new Error('No category found !');
-  const products = await scrapProductsByCategory(category.title);
+  const { data: products } = await axios.get(`http://docker.for.mac.localhost:3005/category/${category.title}`);
+
   await Promise
     .map(products, product => createProduct(ctx, category, product), { concurrency: 10 })
     .catch(winston.error);
@@ -59,6 +59,7 @@ module.exports = {
         .reduce((a, b) => a.concat(b), []);
     }
 
+    const { data: categoriesJSON } = await axios.get('http://docker.for.mac.localhost:3005/categories');
     const subCategories = getSubCategories(categoriesJSON);
     await Promise.all(subCategories.map(async category => ctx.db.mutation.createCategory({
       data: {

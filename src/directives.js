@@ -1,6 +1,7 @@
 const { SchemaDirectiveVisitor } = require('graphql-tools');
 const { defaultFieldResolver } = require('graphql');
 const { getUser } = require('graphql-authentication');
+const { get } = require('lodash');
 
 function not(value) {
   return !value;
@@ -38,8 +39,8 @@ class AuthDirective extends SchemaDirectiveVisitor {
 
   ensureFieldsWrapped(objectType) {
     // Mark the GraphQLObjectType object to avoid re-wrapping:
-    if (objectType._authFieldsWrapped) return;
-    objectType._authFieldsWrapped = true;
+    if (objectType.authFieldsWrapped) return;
+    objectType.authFieldsWrapped = true;
 
     const fields = objectType.getFields();
 
